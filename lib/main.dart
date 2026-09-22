@@ -17,10 +17,9 @@ class ContentLibraryApp extends StatelessWidget {
         title: 'کتابخانه من',
         debugShowCheckedModeBanner: false,
         locale: const Locale('fa'),
-        localizationsDelegates: [
+localizationsDelegates: [
           DefaultMaterialLocalizations.delegate,
           DefaultWidgetsLocalizations.delegate,
-          DefaultCupertinoLocalizations.delegate,
         ],
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xff6750a4)),
