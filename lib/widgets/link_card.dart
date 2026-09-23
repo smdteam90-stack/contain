@@ -1,21 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../l10n/app_strings.dart';
 import '../models/saved_link.dart';
 
 class LinkCard extends StatelessWidget {
   const LinkCard({
     super.key,
     required this.item,
+    required this.s,
     required this.onOpen,
     required this.onWatched,
     required this.onDelete,
+    required this.onEdit,
+    required this.onMove,
+    required this.onShare,
   });
 
   final SavedLink item;
+  final AppStrings s;
   final VoidCallback onOpen;
   final VoidCallback onWatched;
   final VoidCallback onDelete;
+  final VoidCallback onEdit;
+  final VoidCallback onMove;
+  final VoidCallback onShare;
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +52,10 @@ class LinkCard extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      CircleAvatar(radius: 12, child: Text(_sourceIcon(item.source), style: const TextStyle(fontSize: 10))),
+                      CircleAvatar(
+                        radius: 12,
+                        child: Text(_sourceIcon(item.source), style: const TextStyle(fontSize: 10)),
+                      ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
@@ -57,10 +69,34 @@ class LinkCard extends StatelessWidget {
                         ),
                       ),
                       PopupMenuButton<String>(
-                        onSelected: (choice) => choice == 'watched' ? onWatched() : onDelete(),
+                        onSelected: (choice) {
+                          switch (choice) {
+                            case 'watched':
+                              onWatched();
+                              break;
+                            case 'edit':
+                              onEdit();
+                              break;
+                            case 'move':
+                              onMove();
+                              break;
+                            case 'share':
+                              onShare();
+                              break;
+                            case 'delete':
+                              onDelete();
+                              break;
+                          }
+                        },
                         itemBuilder: (_) => [
-                          PopupMenuItem(value: 'watched', child: Text(item.watched ? 'علامت نخوانده' : 'علامت دیده‌شده')),
-                          const PopupMenuItem(value: 'delete', child: Text('حذف')),
+                          PopupMenuItem(
+                            value: 'watched',
+                            child: Text(item.watched ? s.t('markUnwatched') : s.t('markWatched')),
+                          ),
+                          PopupMenuItem(value: 'edit', child: Text(s.t('editLabel'))),
+                          PopupMenuItem(value: 'move', child: Text(s.t('moveLabel'))),
+                          PopupMenuItem(value: 'share', child: Text(s.t('shareLabel'))),
+                          PopupMenuItem(value: 'delete', child: Text(s.t('deleteLabel'))),
                         ],
                       ),
                     ],

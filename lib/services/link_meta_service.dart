@@ -1,5 +1,10 @@
+import 'dart:convert';
+
+import 'package:http/http.dart' as http;
+
 /// Figures out the source app and, where possible, a channel/handle name
-/// directly from the shared URL, without any network request.
+/// directly from the shared URL, without any network request. Also offers
+/// a best-effort thumbnail lookup via the page's Open Graph metadata.
 class LinkMetaService {
   static String sourceFor(String url) {
     final host = Uri.tryParse(url)?.host.toLowerCase() ?? '';
@@ -15,8 +20,6 @@ class LinkMetaService {
   }
 
   /// Best-effort guess at a channel/handle from the URL path itself.
-  /// Works for profile-style paths (e.g. instagram.com/someuser/...,
-  /// t.me/somechannel/123, tiktok.com/@someuser/video/...).
   /// Returns '' when nothing reliable can be extracted -- the field stays
   /// optional and the user can fill it in by hand.
   static String guessChannel(String url) {
@@ -40,6 +43,37 @@ class LinkMetaService {
         return '@' + segments.first;
       default:
         return '';
+    }
+  }
+
+  /// Best-effort: fetches the page and reads its Open Graph image tag.
+  /// Many apps (Instagram, TikTok) block this without login, so a null
+  /// result here is normal and expected, not an error.
+  static Future<String?> fetchThumbnail(String url) async {
+    try {
+      final response = await http
+          .get(Uri.parse(url), headers: {'User-Agent': 'Mozilla/5.0'})
+          .timeout(const Duration(seconds: 6));
+      if (response.statusCode != 200) return null;
+      final body = utf8.decode(response.bodyBytes, allowMalformed: true);
+      final patterns = [
+        RegExp(
+          '<meta[^>]+property=["\']og:image["\'][^>]+content=["\']([^"\']+)["\']',
+          caseSensitive: false,
+        ),
+        RegExp(
+          '<meta[^>]+content=["\']([^"\']+)["\'][^>]+property=["\']og:image["\']',
+          caseSensitive: false,
+        ),
+      ];
+      for (final pattern in patterns) {
+        final match = pattern.firstMatch(body);
+        final imageUrl = match?.group(1);
+        if (imageUrl != null && imageUrl.isNotEmpty) return imageUrl;
+      }
+      return null;
+    } catch (_) {
+      return null;
     }
   }
 

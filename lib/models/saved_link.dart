@@ -26,21 +26,23 @@ class SavedLink {
   bool watched;
 
   SavedLink copyWith({
+    String? title,
     String? folder,
     String? channel,
     String? description,
+    String? thumbnailUrl,
     bool? watched,
   }) =>
       SavedLink(
         id: id,
         url: url,
-        title: title,
+        title: title ?? this.title,
         folder: folder ?? this.folder,
         source: source,
         createdAt: createdAt,
         channel: channel ?? this.channel,
         description: description ?? this.description,
-        thumbnailUrl: thumbnailUrl,
+        thumbnailUrl: thumbnailUrl ?? this.thumbnailUrl,
         watched: watched ?? this.watched,
       );
 

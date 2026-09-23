@@ -1,0 +1,29 @@
+# Dart / Flutter
+.dart_tool/
+.packages
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+
+# IDE
+.idea/
+*.iml
+
+# Android
+android/local.properties
+android/.gradle/
+android/gradle-wrapper.jar
+android/app/debug/
+android/app/profile/
+android/app/release/
+*.jks
+
+# Build/log noise
+build.out.log
+build.err.log
+
+# OS
+.DS_Store
+Thumbs.db
