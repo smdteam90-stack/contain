@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.sam.contentlibrary.content_library"
-    compileSdk = 36
+    compileSdk = 37
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
