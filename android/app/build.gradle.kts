@@ -9,12 +9,11 @@ if (keystorePropertiesFile.exists()) {
 
 plugins {
     id("com.android.application")
-    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
 
 android {
-    namespace = "com.sam.contentlibrary.content_library"
+    namespace = "com.sam.reelbox"
     compileSdk = 37
     ndkVersion = flutter.ndkVersion
 
@@ -24,7 +23,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.sam.contentlibrary.content_library"
+        applicationId = "com.sam.reelbox"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
