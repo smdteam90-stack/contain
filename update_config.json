@@ -1,0 +1,11 @@
+{
+  "latestVersion": "0.1.0",
+  "changelog": {
+    "fa": ["انتشار اولیه‌ی Reelbox."],
+    "en": ["Initial release of Reelbox."],
+    "ar": ["الإصدار الأول من Reelbox."],
+    "es": ["Primera versión de Reelbox."],
+    "fr": ["Première version de Reelbox."],
+    "tr": ["Reelbox'ın ilk sürümü."]
+  }
+}
