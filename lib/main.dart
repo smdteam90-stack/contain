@@ -304,7 +304,10 @@ class _LibraryHomeState extends State<LibraryHome> {
   }
 
   void _shareLink(SavedLink item) {
-    Share.share(item.url);
+    final signature = _s.t('sentViaSignature');
+    Share.share(
+      '${item.url}\n\n$signature\nhttps://cafebazaar.ir/app/?id=com.sam.reelbox',
+    );
   }
 
   void _toggleWatched(SavedLink item) {
