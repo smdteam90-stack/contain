@@ -7,6 +7,7 @@ import 'l10n/app_strings.dart';
 import 'models/saved_link.dart';
 import 'screens/save_link_screen.dart';
 import 'screens/settings_screen.dart';
+import 'services/backup_service.dart';
 import 'services/settings_service.dart';
 import 'services/share_intent_service.dart';
 import 'services/storage_service.dart';
@@ -117,6 +118,7 @@ class _LibraryHomeState extends State<LibraryHome> {
   final _search = TextEditingController();
   final _storage = StorageService();
   final _shareService = ShareIntentService();
+  final _backup = BackupService();
 
   List<SavedLink> _links = [];
   List<String> _folders = [];
@@ -310,6 +312,59 @@ class _LibraryHomeState extends State<LibraryHome> {
     );
   }
 
+  Future<void> _shareWholeBackup() async {
+    await _backup.shareWholeBackup(_links, _folders);
+  }
+
+  Future<void> _shareFolderBackup(String folder) async {
+    await _backup.shareFolderBackup(folder, _links);
+  }
+
+  Future<void> _restoreBackup() async {
+    final data = await _backup.pickBackup();
+    if (!mounted) return;
+    if (data == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(_s.t('restoreFailedMsg'))),
+      );
+      return;
+    }
+    final existingIds = _links.map((e) => e.id).toSet();
+    final newLinks = data.links.where((l) => !existingIds.contains(l.id)).toList();
+    setState(() {
+      _links = [..._links, ...newLinks];
+      for (final f in data.folders) {
+        if (f.isNotEmpty && !_folders.contains(f)) _folders.add(f);
+      }
+    });
+    _persistLinks();
+    _persistFolders();
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('${_s.t('restoreSuccessMsg')} (${newLinks.length})')),
+    );
+  }
+
+  void _showFolderMenu(String folder) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Wrap(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.ios_share_outlined),
+              title: Text(_s.t('shareFolderBackupLabel')),
+              onTap: () {
+                Navigator.pop(context);
+                _shareFolderBackup(folder);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   void _toggleWatched(SavedLink item) {
     final updated = item.copyWith(watched: !item.watched);
     setState(() {
@@ -397,6 +452,8 @@ class _LibraryHomeState extends State<LibraryHome> {
         builder: (_) => SettingsScreen(
           settings: widget.settings,
           onChanged: widget.onSettingsChanged,
+          onShareBackup: _shareWholeBackup,
+          onRestoreBackup: _restoreBackup,
         ),
       ),
     );
@@ -452,10 +509,13 @@ class _LibraryHomeState extends State<LibraryHome> {
                 ..._folders.map(
                   (name) => Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: ChoiceChip(
-                      label: Text(name),
-                      selected: _activeFolder == name,
-                      onSelected: (_) => setState(() => _activeFolder = name),
+                    child: GestureDetector(
+                      onLongPress: () => _showFolderMenu(name),
+                      child: ChoiceChip(
+                        label: Text(name),
+                        selected: _activeFolder == name,
+                        onSelected: (_) => setState(() => _activeFolder = name),
+                      ),
                     ),
                   ),
                 ),
