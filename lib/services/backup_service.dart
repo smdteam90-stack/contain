@@ -53,12 +53,15 @@ class BackupService {
   /// Lets the user pick a previously saved backup file (whole-library or
   /// single-folder) and returns what was in it, or null if the user
   /// cancelled or the file wasn't a recognizable Reelbox backup.
-  Future<BackupData?> pickBackup() async {
-    final result = await FilePicker.platform.pickFiles(
+    Future<BackupData?> pickBackup() async {
+    final pickedFile = await FilePicker.pickFile(
       type: FileType.custom,
       allowedExtensions: ['json'],
     );
-    final path = result?.files.single.path;
+
+    if (pickedFile == null) return null;
+
+    final path = pickedFile.path;
     if (path == null) return null;
 
     try {
@@ -70,25 +73,31 @@ class BackupService {
         final links = (data['links'] as List<dynamic>)
             .map((e) => SavedLink.fromJson(e as Map<String, dynamic>))
             .toList();
-        final folders = (data['folders'] as List<dynamic>?)?.cast<String>() ?? [];
-        return BackupData(links: links, folders: folders);
+
+        final folders =
+            (data['folders'] as List<dynamic>?)?.cast<String>() ?? [];
+
+        return BackupData(
+          links: links,
+          folders: folders,
+        );
       }
+
       if (app == _folderType) {
         final links = (data['links'] as List<dynamic>)
             .map((e) => SavedLink.fromJson(e as Map<String, dynamic>))
             .toList();
+
         final folder = data['folder'] as String? ?? '';
-        return BackupData(links: links, folders: folder.isEmpty ? [] : [folder]);
+
+        return BackupData(
+          links: links,
+          folders: folder.isEmpty ? [] : [folder],
+        );
       }
+
       return null;
     } catch (_) {
       return null;
     }
   }
-}
-
-class BackupData {
-  BackupData({required this.links, required this.folders});
-  final List<SavedLink> links;
-  final List<String> folders;
-}
