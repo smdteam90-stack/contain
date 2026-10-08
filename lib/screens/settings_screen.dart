@@ -23,10 +23,14 @@ class SettingsScreen extends StatefulWidget {
     super.key,
     required this.settings,
     required this.onChanged,
+    required this.onShareBackup,
+    required this.onRestoreBackup,
   });
 
   final AppSettings settings;
   final ValueChanged<AppSettings> onChanged;
+  final Future<void> Function() onShareBackup;
+  final Future<void> Function() onRestoreBackup;
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -281,10 +285,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
           ],
+          const Divider(),
+          _SectionHeader(title: _s.t('backupSection')),
           ListTile(
-            leading: const Icon(Icons.star_outline),
-            title: Text(_s.t('rateUsLabel')),
-            onTap: _showStoreChooser,
+            leading: const Icon(Icons.ios_share_outlined),
+            title: Text(_s.t('saveBackupLabel')),
+            onTap: widget.onShareBackup,
+          ),
+          ListTile(
+            leading: const Icon(Icons.restore_outlined),
+            title: Text(_s.t('restoreBackupLabel')),
+            onTap: widget.onRestoreBackup,
           ),
         ],
       ),
