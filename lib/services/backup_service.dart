@@ -54,11 +54,11 @@ class BackupService {
   /// single-folder) and returns what was in it, or null if the user
   /// cancelled or the file wasn't a recognizable Reelbox backup.
   Future<BackupData?> pickBackup() async {
-    final result = await FilePicker.platform.pickFiles(
+    final file = await FilePicker.pickFile(
       type: FileType.custom,
       allowedExtensions: ['json'],
     );
-    final path = result?.files.single.path;
+    final path = file?.path;
     if (path == null) return null;
 
     try {
